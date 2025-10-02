@@ -55,5 +55,20 @@ Este projeto implementa um pipeline de **NLP (Processamento de Linguagem Natural
 ```python
 from tensorflow.keras.models import load_model
 
+## Como carregar e usar o modelo salvo
+
+O modelo treinado foi exportado em formato **Keras 3 (`.keras`)**, que já inclui arquitetura + pesos.  
+Isso significa que você pode abrir e usar o modelo sem precisar reconfigurar nada.
+
+### Carregar o modelo
+```python
+from keras.models import load_model
+
+# Baixar o arquivo do GitHub (exemplo via wget)
+!wget https://github.com/LucasG99/BERT/raw/main/model_export_complete.keras
+
+# Carregar o modelo
+model = load_model("model_export_complete.keras", compile=False)
+
 model = load_model("model_export_complete.keras", compile=False)
 model.summary()

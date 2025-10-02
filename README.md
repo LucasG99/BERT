@@ -1,72 +1,59 @@
-# 🤖 Twitter Bot Detection com TinyBERT
+# 🤖 Detecção de Bots em Tweets com BERT/DistilBERT
 
-Este projeto tem como objetivo treinar uma rede neural baseada em **TinyBERT** utilizando **Keras** para detectar contas automatizadas (bots) no Twitter.  
-A implementação foi feita no **Google Colab** com base no dataset **Twitter Bot Detection** disponível no Kaggle.
-
----
-
-## 📂 Estrutura do Projeto
-
-- `bot_detection_data.csv` → Dataset utilizado (tweets e rótulo indicando se é bot ou humano).  
-- `notebook.ipynb` → Notebook com todo o pipeline (pré-processamento, treino, avaliação e gráficos).  
-- `TinyBERT_trained.zip` → Modelo TinyBERT treinado e salvo, pronto para reutilização.  
-- `README.md` → Este arquivo de documentação.  
+Este projeto implementa um pipeline de **NLP (Processamento de Linguagem Natural)** para detectar bots em postagens de redes sociais, utilizando modelos pré-treinados da família BERT.
 
 ---
 
-## ⚙️ Tecnologias Utilizadas
-
-- **Python 3**  
-- [TensorFlow](https://www.tensorflow.org/)  
-- [Transformers (Hugging Face)](https://huggingface.co/transformers/)  
-- **Pandas / Numpy / Scikit-learn**  
-- **Matplotlib / Seaborn**  
+## 📂 Estrutura do repositório
+- `notebook.ipynb` → Notebook completo com pré-processamento, treino, avaliação e explicações.  
+- `model_export_complete.keras` → Modelo salvo em formato Keras v3 (arquitetura + pesos).  
+- `README.md` → Este arquivo.  
 
 ---
 
-## 🚀 Como Rodar o Projeto
+## 🚀 Metodologia
+1. **Exploração dos dados**  
+   - Balanceamento das classes  
+   - Definição de `max_length` para tokenização  
 
-1. Clone este repositório:
-   ```bash
-   git clone https://github.com/seuusuario/twitter-bot-detection.git
-   cd twitter-bot-detection
+2. **Tokenização com DistilBERT**  
+   - Padding e truncamento para tamanho fixo  
+   - Criação de datasets via `tf.data.Dataset`  
 
-Abra o notebook no Google Colab ou em ambiente local.
-Certifique-se de ter GPU habilitada, se possível.
+3. **Modelagem**  
+   - Uso de `TFDistilBertModel` congelado  
+   - Camada densa final para classificação binária  
 
-Instale as dependências:
+4. **Treinamento**  
+   - Poucas épocas (viável em Colab)  
+   - Callback `EarlyStopping`  
+   - Avaliação com métricas de acurácia, AUC, F1, além de gráficos  
 
-pip install tensorflow transformers scikit-learn matplotlib seaborn pandas
+5. **Comparação com baseline**  
+   - TF-IDF + Regressão Logística  
 
-Execute o notebook passo a passo.
+---
 
-📊 Resultados
+## 📊 Resultados
+- **Acurácia**: ~50%  
+- **AUC**: ~0.51  
+- O modelo não superou significativamente o baseline, mas mostrou a viabilidade do pipeline.  
+- Thresholds alternativos (F1 e Youden) foram testados para analisar trade-offs entre precisão e recall.  
+- Gráficos de **loss, acurácia, matriz de confusão e relatórios de classificação** estão disponíveis no notebook.  
 
-Acurácia no conjunto de teste: ~0.50
+---
 
-Matriz de Confusão: o modelo classificou todas as amostras como "Humano", não identificando bots.
+## 🔮 Melhorias futuras
+- Fine-tuning completo do DistilBERT ou modelos mais recentes (RoBERTa, BERTimbau).  
+- Treino com mais épocas e dados adicionais.  
+- Inclusão de **features não textuais** (ex: metadados do usuário, frequência de postagens).  
+- Técnicas de balanceamento de classes e regularização.  
 
-Curva ROC e AUC: ~0.51, indicando desempenho próximo ao acaso.
+---
 
-Curvas de Perda: estáveis em torno de 0.693, mostrando que o modelo não aprendeu padrões relevantes.
+## 💾 Como carregar o modelo salvo
+```python
+from tensorflow.keras.models import load_model
 
-Exemplos de Gráficos
-
-Matriz de Confusão
-Mostrou que o modelo não conseguiu separar as classes.
-
-Curva ROC
-Linha próxima da diagonal, AUC ≈ 0.51.
-
-Curva de Perda
-Estagnada, sem indícios de aprendizado.
-
-📌 Lições Aprendidas
-
-Durante o desenvolvimento deste projeto, percebi que:
-
-Trabalhar com modelos da família BERT exige muito mais do que apenas rodar código pronto: é necessário ajuste fino, balanceamento de classes e maior tempo de treino.
-
-Nem sempre usar um modelo de ponta garante bons resultados se o dataset ou a configuração não forem adequados.
-
-Resultados ruins também têm valor: eles mostram limitações e apontam os próximos passos para evolução do projeto.
+model = load_model("model_export_complete.keras", compile=False)
+model.summary()
